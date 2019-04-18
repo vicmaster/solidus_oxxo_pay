@@ -4,7 +4,7 @@ module Spree
   class ConektaOxxoPayment < Spree::PaymentSource
     attr_accessor :server, :test_mode, :api_key
 
-    def authorize(_money, source, gateway_options)
+    def authorize(_money, source, _gateway_options)
       ::Conekta.api_key = api_key
       ::Conekta.api_version = "2.0.0"
 
@@ -14,8 +14,8 @@ module Spree
         response = ::Conekta::Order.create(payload(order))
         creditcard.update_attribute :conekta_order_id, response.id
         ActiveMerchant::Billing::Response.new(true, 'Orden creada satisfactoriamente', {}, parse_response(response))
-      rescue ::Conekta::Error => error
-        ActiveMerchant::Billing::Response.new(false, error.details.map(&:message).join(', '))
+      rescue ::Conekta::Error => e
+        ActiveMerchant::Billing::Response.new(false, e.details.map(&:message).join(', '))
       end
     end
 
